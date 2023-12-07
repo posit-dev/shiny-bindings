@@ -1,4 +1,7 @@
-import { CustomElementInput, makeInputBinding } from "../../core/dist";
+import {
+  CustomElementInput,
+  makeInputBinding,
+} from "@posit-dev/shiny-bindings-core";
 import type { ReactNode } from "react";
 import { createRoot } from "react-dom/client";
 

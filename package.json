@@ -13,7 +13,7 @@
   },
   "workspaces": [
     "packages/react",
-    "packages/main"
+    "packages/core"
   ],
   "repository": {
     "type": "git",
