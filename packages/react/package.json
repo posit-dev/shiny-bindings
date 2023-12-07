@@ -1,0 +1,37 @@
+{
+  "name": "@posit-dev/shiny-bindings-react",
+  "version": "0.0.1",
+  "description": "React helpers for building Shiny app extensions",
+  "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "@posit-dev/shiny-bindings-core": "*",
+    "@types/react": "^18.2.38",
+    "@types/react-dom": "^18.2.16",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.2.2"
+  },
+  "author": "Nick Strayer",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/posit-dev/shiny-bindings.git"
+  },
+  "bugs": {
+    "url": "https://github.com/posit-dev/shiny-bindings/issues"
+  },
+  "homepage": "https://github.com/posit-dev/shiny-bindings#readme"
+}
