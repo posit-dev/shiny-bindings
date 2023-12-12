@@ -1,4 +1,5 @@
-import { Shiny } from "./OptionalShiny";
+import { Shiny } from "./utils";
+import { Constructor } from "./utils";
 
 /**
  * A custom element that extends this interface will be treated as an input
@@ -18,13 +19,23 @@ export interface CustomElementInput<T = string> extends HTMLElement {
  * Given a tag name for a custom element that is a CustomElementInput<T>, this
  * will hook up the proper input binding and register it with Shiny.
  * @param tagName Name of the tag that corresponds to the input binding
- * @param elementComponent The component that will be used to render the input.
- * This is used for type-checking the input.
- * @returns Nothing
+ * @param el The custom element that extends `CustomElementInput<T>`.
+ * @param opts Options for the output binding
+ * @param opts.registerElement Whether to register the webcomponent used for the
+ * output. Defaults to true.
+ * @param opts.type The type of the input. This is used for type-checking the
+ * input within Shiny. Defaults to null.
  */
-export function makeInputBinding<El extends CustomElementInput<unknown>>(
+export function makeInputBinding<
+  T,
+  El extends CustomElementInput<T> = CustomElementInput<T>
+>(
   tagName: string,
-  { type = null }: { type?: string | null } = {}
+  el: Constructor<El>,
+  opts: {
+    registerElement?: boolean;
+    type?: string | null;
+  } = { registerElement: true, type: null }
 ) {
   if (!Shiny) {
     return;
@@ -44,7 +55,7 @@ export function makeInputBinding<El extends CustomElementInput<unknown>>(
     }
 
     override getType(_: El): string | null {
-      return type;
+      return opts.type ?? null;
     }
 
     override subscribe(
@@ -60,6 +71,10 @@ export function makeInputBinding<El extends CustomElementInput<unknown>>(
     override unsubscribe(el: El): void {
       el.notifyBindingOfChange = (_?: boolean) => {};
     }
+  }
+
+  if (opts.registerElement) {
+    customElements.define(tagName, el);
   }
 
   Shiny.inputBindings.register(new NewCustomBinding(), `${tagName}-Binding`);

@@ -1,4 +1,5 @@
-import { Shiny } from "./OptionalShiny";
+import { Constructor } from "./utils";
+import { Shiny } from "./utils";
 
 /**
  * A custom element that extends this interface will be treated as an output
@@ -50,8 +51,3 @@ export function makeOutputBinding<
 
   Shiny.outputBindings.register(new NewCustomBinding(), `${tagName}-Binding`);
 }
-
-type Constructor<T> = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  new (...args: any[]): T;
-};

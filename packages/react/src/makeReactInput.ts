@@ -60,9 +60,8 @@ export function makeReactInput<T>({
     }
   }
 
-  // Register the custom element
-  customElements.define(tagName, InputComponent);
-
   // Setup the input binding for the custom input
-  makeInputBinding<InputComponent>(tagName);
+  makeInputBinding<T>(tagName, InputComponent, {
+    registerElement: true,
+  });
 }
