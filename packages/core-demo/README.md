@@ -1,5 +1,25 @@
 This repo is an example of a python package that defines a simple custom input component for Shiny.
 
+## Developing using this package
+
+In the `packages/core` folder:
+
+```bash
+npm run watch
+```
+
+In the `example-app` folder:
+
+```bash
+npm install-pkg
+
+npm run watch
+```
+
+Run app in `example-app` folder with the vscode extension play button.
+
+Changes to the core package will be automatically picked up by the example app and reloaded.
+
 ## Structure
 
 The code structure is as follow:
