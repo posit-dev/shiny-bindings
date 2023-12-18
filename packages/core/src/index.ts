@@ -1,8 +1,9 @@
-export type { CustomElementInput } from "./makeInputBinding";
+export type { CustomElementInput } from "./makeInputBindingWebComponent";
+export { makeInputBindingWebComponent } from "./makeInputBindingWebComponent";
 export { makeInputBinding } from "./makeInputBinding";
 export { makeOutputBinding } from "./makeOutputBinding";
+export type { CustomElementOutput } from "./makeOutputBindingWebComponent";
 export { makeOutputBindingWebComponent } from "./makeOutputBindingWebComponent";
-export type { CustomElementOutput } from "./makeOutputBinding";
 // type Shiny = typeof window.Shiny | undefined;
 // export type { Shiny };
 

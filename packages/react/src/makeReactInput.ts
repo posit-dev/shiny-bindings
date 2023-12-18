@@ -1,6 +1,6 @@
 import {
   CustomElementInput,
-  makeInputBinding,
+  makeInputBindingWebComponent,
 } from "@posit-dev/shiny-bindings-core";
 import type { ReactNode } from "react";
 import { createRoot } from "react-dom/client";
@@ -61,7 +61,7 @@ export function makeReactInput<T>({
   }
 
   // Setup the input binding for the custom input
-  makeInputBinding<T>(tagName, InputComponent, {
+  makeInputBindingWebComponent<T>(tagName, InputComponent, {
     registerElement: true,
   });
 }

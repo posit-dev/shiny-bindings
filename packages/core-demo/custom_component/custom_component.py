@@ -68,3 +68,16 @@ def custom_component_simple(id: str):
         # Use resolve_id so that our component will work in a module
         id=resolve_id(id),
     )
+
+
+def custom_component_input(id: str):
+    """
+    A shiny input to demo nameInputBinding().
+    """
+    return Tag(
+        "div",
+        {"class": "custom-component-input"},
+        custom_component_deps,
+        # Use resolve_id so that our component will work in a module
+        id=resolve_id(id),
+    )

@@ -623,6 +623,42 @@
   // ../core/dist/utils.js
   var Shiny = window.Shiny;
 
+  // ../core/dist/makeInputBinding.js
+  function makeInputBinding({ name, selector = `.${name}`, setup }) {
+    if (!Shiny) {
+      return;
+    }
+    class NewCustomBinding extends Shiny.InputBinding {
+      constructor() {
+        super();
+        this.boundElementValues = /* @__PURE__ */ new WeakMap();
+      }
+      find(scope) {
+        return $(scope).find(selector);
+      }
+      getValue(el) {
+        if (this.boundElementValues.has(el)) {
+          return this.boundElementValues.get(el);
+        }
+        return null;
+      }
+      // TODO: Setup the getType method here
+      subscribe(el, callback) {
+        if (this.boundElementValues.has(el)) {
+          throw new Error("Cannot subscribe to an element that is already subscribed to");
+        }
+        setup(el, (x2, allowDeferred = false) => {
+          this.boundElementValues.set(el, x2);
+          callback(allowDeferred);
+        });
+      }
+      unsubscribe(el) {
+        this.boundElementValues.delete(el);
+      }
+    }
+    Shiny.inputBindings.register(new NewCustomBinding(), `${name}-Binding`);
+  }
+
   // ../core/dist/makeOutputBinding.js
   function makeOutputBinding({ name, selector = `.${name}`, setup }) {
     if (!Shiny) {
@@ -714,6 +750,21 @@
       `;
         }
       };
+    }
+  });
+  makeInputBinding({
+    name: "custom-component-input",
+    setup: (el, onNewValue) => {
+      let count = 0;
+      el.innerHTML = `
+    <span>I am an input</span>
+    <button>Click me</button>
+    `;
+      const button = el.querySelector("button");
+      button.addEventListener("click", () => {
+        onNewValue(++count);
+      });
+      onNewValue(count);
     }
   });
 })();

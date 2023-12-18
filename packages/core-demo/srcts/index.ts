@@ -2,6 +2,7 @@ import { LitElement, html, css } from "lit";
 import { property } from "lit/decorators.js";
 
 import {
+  makeInputBinding,
   makeOutputBinding,
   makeOutputBindingWebComponent,
 } from "@posit-dev/shiny-bindings-core";
@@ -59,5 +60,21 @@ makeOutputBinding<Payload>({
       `;
       },
     };
+  },
+});
+
+makeInputBinding<number>({
+  name: "custom-component-input",
+  setup: (el, onNewValue) => {
+    let count = 0;
+    el.innerHTML = `
+    <span>I am an input</span>
+    <button>Click me</button>
+    `;
+    const button = el.querySelector("button")!;
+    button.addEventListener("click", () => {
+      onNewValue(++count);
+    });
+    onNewValue(count);
   },
 });

@@ -1,6 +1,16 @@
 import { Constructor } from "./utils";
 import { Shiny } from "./utils";
-import { CustomElementOutput } from "./makeOutputBinding";
+
+/**
+ * A custom element that extends this interface will be treated as an output
+ * binding by Shiny when paired with `makeOutputBinding()`.
+ * @template T The type of the data that will be passed to the element
+ * @property onNewValue A function that will be called when there is new data
+ * to render
+ */
+export interface CustomElementOutput<T> extends HTMLElement {
+  onNewValue: (x: T) => void;
+}
 
 /**
  * Given a tag name for a custom element that extends CustomElementOutput<T>,
