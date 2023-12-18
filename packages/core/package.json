@@ -9,6 +9,8 @@
   ],
   "scripts": {
     "build": "tsc",
+    "watch": "tsc --watch",
+    "type-check": "tsc --noEmit",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
