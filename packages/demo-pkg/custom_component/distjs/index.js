@@ -23517,6 +23517,163 @@
     }
   });
 
+  // ../core/dist/utils.js
+  var Shiny = window.Shiny;
+
+  // ../core/dist/makeInputBinding.js
+  function makeInputBinding({ name, selector = `.${name}`, setup }) {
+    if (!Shiny) {
+      return;
+    }
+    class NewCustomBinding extends Shiny.InputBinding {
+      constructor() {
+        super();
+        this.boundElementValues = /* @__PURE__ */ new WeakMap();
+      }
+      find(scope) {
+        return $(scope).find(selector);
+      }
+      getValue(el) {
+        if (this.boundElementValues.has(el)) {
+          return this.boundElementValues.get(el);
+        }
+        return null;
+      }
+      // TODO: Setup the getType method here
+      subscribe(el, callback) {
+        if (this.boundElementValues.has(el)) {
+          throw new Error("Cannot subscribe to an element that is already subscribed to");
+        }
+        setup(el, (x2, allowDeferred = false) => {
+          this.boundElementValues.set(el, x2);
+          callback(allowDeferred);
+        });
+      }
+      unsubscribe(el) {
+        this.boundElementValues.delete(el);
+      }
+    }
+    Shiny.inputBindings.register(new NewCustomBinding(), `${name}-Binding`);
+  }
+
+  // ../core/dist/makeOutputBinding.js
+  function makeOutputBinding({ name, selector = `.${name}`, setup }) {
+    if (!Shiny) {
+      return;
+    }
+    class NewCustomBinding extends Shiny.OutputBinding {
+      constructor() {
+        super(...arguments);
+        this.boundElements = /* @__PURE__ */ new WeakMap();
+      }
+      find(scope) {
+        return $(scope).find(selector);
+      }
+      getCallbacks(el) {
+        if (!this.boundElements.has(el)) {
+          this.boundElements.set(el, setup(el));
+        }
+        const callbacks = this.boundElements.get(el);
+        if (typeof callbacks === "undefined") {
+          throw new Error("Unable to get callbacks for element");
+        }
+        return callbacks;
+      }
+      renderValue(el, data) {
+        this.getCallbacks(el).onNewValue(data);
+      }
+    }
+    Shiny.outputBindings.register(new NewCustomBinding(), `${name}-Binding`);
+  }
+
+  // ../core/dist/makeOutputBindingWebComponent.js
+  function makeOutputBindingWebComponent(tagName, el, opts = { registerElement: true }) {
+    if (!Shiny) {
+      return;
+    }
+    class NewCustomBinding extends Shiny["OutputBinding"] {
+      find(scope) {
+        return $(scope).find(tagName);
+      }
+      renderValue(el2, data) {
+        el2.onNewValue(data);
+      }
+    }
+    if (opts.registerElement) {
+      customElements.define(tagName, el);
+    }
+    Shiny.outputBindings.register(new NewCustomBinding(), `${tagName}-Binding`);
+  }
+
+  // srcts/plain-bindings.ts
+  makeOutputBinding({
+    name: "custom-component-simple",
+    setup: (el) => {
+      let rendered_count = 0;
+      return {
+        onNewValue: (payload) => {
+          el.innerHTML = `
+          <span part="display"> Simple value: ${payload.value} </span>
+          <span> Rendered ${++rendered_count} times </span>
+        `;
+        }
+      };
+    }
+  });
+  makeInputBinding({
+    name: "custom-component-input",
+    setup: (el, onNewValue) => {
+      let count = 0;
+      el.innerHTML = `
+      <span>I am an input</span>
+      <button>Click me</button>
+      `;
+      const button = el.querySelector("button");
+      button.addEventListener("click", () => {
+        onNewValue(++count);
+      });
+      onNewValue(count);
+    }
+  });
+
+  // ../react/dist/makeReactInput.js
+  var import_client = __toESM(require_client());
+
+  // ../react/dist/makeReactOutput.js
+  var import_client2 = __toESM(require_client());
+  function makeReactOutput({ name, selector = `.${name}`, renderComp }) {
+    makeOutputBinding({
+      name,
+      selector,
+      setup: (el) => {
+        const root = (0, import_client2.createRoot)(el);
+        return {
+          onNewValue: (payload) => {
+            root.render(renderComp(payload));
+          }
+        };
+      }
+    });
+  }
+
+  // srcts/react-components.tsx
+  var import_react = __toESM(require_react());
+  makeReactOutput({
+    name: "custom-react-output",
+    renderComp: ({ value }) => /* @__PURE__ */ import_react.default.createElement(
+      "div",
+      {
+        style: {
+          border: "1px solid black",
+          height: "100px",
+          width: "100px"
+        }
+      },
+      "I'm a react output with value ",
+      value
+    )
+  });
+
   // ../../node_modules/@lit/reactive-element/css-tag.js
   var t = globalThis;
   var e = t.ShadowRoot && (void 0 === t.ShadyCSS || t.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype;
@@ -24125,133 +24282,7 @@
     })(t3, e5, o5);
   }
 
-  // ../core/dist/utils.js
-  var Shiny = window.Shiny;
-
-  // ../core/dist/makeInputBinding.js
-  function makeInputBinding({ name, selector = `.${name}`, setup }) {
-    if (!Shiny) {
-      return;
-    }
-    class NewCustomBinding extends Shiny.InputBinding {
-      constructor() {
-        super();
-        this.boundElementValues = /* @__PURE__ */ new WeakMap();
-      }
-      find(scope) {
-        return $(scope).find(selector);
-      }
-      getValue(el) {
-        if (this.boundElementValues.has(el)) {
-          return this.boundElementValues.get(el);
-        }
-        return null;
-      }
-      // TODO: Setup the getType method here
-      subscribe(el, callback) {
-        if (this.boundElementValues.has(el)) {
-          throw new Error("Cannot subscribe to an element that is already subscribed to");
-        }
-        setup(el, (x2, allowDeferred = false) => {
-          this.boundElementValues.set(el, x2);
-          callback(allowDeferred);
-        });
-      }
-      unsubscribe(el) {
-        this.boundElementValues.delete(el);
-      }
-    }
-    Shiny.inputBindings.register(new NewCustomBinding(), `${name}-Binding`);
-  }
-
-  // ../core/dist/makeOutputBinding.js
-  function makeOutputBinding({ name, selector = `.${name}`, setup }) {
-    if (!Shiny) {
-      return;
-    }
-    class NewCustomBinding extends Shiny.OutputBinding {
-      constructor() {
-        super(...arguments);
-        this.boundElements = /* @__PURE__ */ new WeakMap();
-      }
-      find(scope) {
-        return $(scope).find(selector);
-      }
-      getCallbacks(el) {
-        if (!this.boundElements.has(el)) {
-          this.boundElements.set(el, setup(el));
-        }
-        const callbacks = this.boundElements.get(el);
-        if (typeof callbacks === "undefined") {
-          throw new Error("Unable to get callbacks for element");
-        }
-        return callbacks;
-      }
-      renderValue(el, data) {
-        this.getCallbacks(el).onNewValue(data);
-      }
-    }
-    Shiny.outputBindings.register(new NewCustomBinding(), `${name}-Binding`);
-  }
-
-  // ../core/dist/makeOutputBindingWebComponent.js
-  function makeOutputBindingWebComponent(tagName, el, opts = { registerElement: true }) {
-    if (!Shiny) {
-      return;
-    }
-    class NewCustomBinding extends Shiny["OutputBinding"] {
-      find(scope) {
-        return $(scope).find(tagName);
-      }
-      renderValue(el2, data) {
-        el2.onNewValue(data);
-      }
-    }
-    if (opts.registerElement) {
-      customElements.define(tagName, el);
-    }
-    Shiny.outputBindings.register(new NewCustomBinding(), `${tagName}-Binding`);
-  }
-
-  // ../react/dist/makeReactInput.js
-  var import_client = __toESM(require_client());
-
-  // ../react/dist/makeReactOutput.js
-  var import_client2 = __toESM(require_client());
-  function makeReactOutput({ name, selector = `.${name}`, renderComp }) {
-    makeOutputBinding({
-      name,
-      selector,
-      setup: (el) => {
-        const root = (0, import_client2.createRoot)(el);
-        return {
-          onNewValue: (payload) => {
-            root.render(renderComp(payload));
-          }
-        };
-      }
-    });
-  }
-
-  // srcts/react-components.tsx
-  var import_react = __toESM(require_react());
-  makeReactOutput({
-    name: "custom-react-output",
-    renderComp: ({ value }) => /* @__PURE__ */ import_react.default.createElement(
-      "div",
-      {
-        style: {
-          border: "1px solid black",
-          height: "100px",
-          width: "100px"
-        }
-      },
-      "I'm a react output with value ",
-      value
-    )
-  });
-
-  // srcts/index.ts
+  // srcts/webcomponents.ts
   var CustomComponentEl = class extends s3 {
     constructor() {
       super(...arguments);
@@ -24281,35 +24312,6 @@
     n4({ type: Number })
   ], CustomComponentEl.prototype, "count", 2);
   makeOutputBindingWebComponent("custom-component", CustomComponentEl);
-  makeOutputBinding({
-    name: "custom-component-simple",
-    setup: (el) => {
-      let rendered_count = 0;
-      return {
-        onNewValue: (payload) => {
-          el.innerHTML = `
-        <span part="display"> Simple value: ${payload.value} </span>
-        <span> Rendered ${++rendered_count} times </span>
-      `;
-        }
-      };
-    }
-  });
-  makeInputBinding({
-    name: "custom-component-input",
-    setup: (el, onNewValue) => {
-      let count = 0;
-      el.innerHTML = `
-    <span>I am an input</span>
-    <button>Click me</button>
-    `;
-      const button = el.querySelector("button");
-      button.addEventListener("click", () => {
-        onNewValue(++count);
-      });
-      onNewValue(count);
-    }
-  });
 })();
 /*! Bundled license information:
 
