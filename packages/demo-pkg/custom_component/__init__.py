@@ -5,7 +5,11 @@ from .custom_component import (
     custom_component_input,
 )
 
-from .react_components import custom_react_output, render_react_output
+from .react_components import (
+    custom_react_output,
+    render_react_output,
+    react_input,
+)
 
 __all__ = [
     "custom_component",
@@ -14,4 +18,5 @@ __all__ = [
     "custom_component_input",
     "custom_react_output",
     "render_react_output",
+    "react_input",
 ]

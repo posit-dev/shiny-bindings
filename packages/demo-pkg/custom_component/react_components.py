@@ -11,6 +11,19 @@ from shiny.render.transformer import (
 from .custom_component import custom_component_deps
 
 
+def react_input(id: str):
+    """
+    A react output.
+    """
+    return Tag(
+        "div",
+        {"class": "custom-react-input"},
+        custom_component_deps,
+        # Use resolve_id so that our component will work in a module
+        id=resolve_id(id),
+    )
+
+
 @output_transformer()
 async def render_react_output(
     _meta: TransformerMetadata,

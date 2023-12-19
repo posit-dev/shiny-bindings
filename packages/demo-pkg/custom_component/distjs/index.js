@@ -23048,7 +23048,7 @@
               unmarkContainerAsRoot(container);
             }
           };
-          function createRoot3(container, options2) {
+          function createRoot5(container, options2) {
             if (!isValidContainer(container)) {
               throw new Error("createRoot(...): Target container is not a DOM element.");
             }
@@ -23419,7 +23419,7 @@
                 error('You are importing createRoot from "react-dom" which is not supported. You should instead import it from "react-dom/client".');
               }
             }
-            return createRoot3(container, options2);
+            return createRoot5(container, options2);
           }
           function hydrateRoot$1(container, initialChildren, options2) {
             {
@@ -23518,14 +23518,14 @@
   });
 
   // ../core/dist/utils.js
-  var Shiny = window.Shiny;
+  var Shiny2 = window.Shiny;
 
   // ../core/dist/makeInputBinding.js
   function makeInputBinding({ name, selector = `.${name}`, setup }) {
-    if (!Shiny) {
+    if (!Shiny2) {
       return;
     }
-    class NewCustomBinding extends Shiny.InputBinding {
+    class NewCustomBinding extends Shiny2.InputBinding {
       constructor() {
         super();
         this.boundElementValues = /* @__PURE__ */ new WeakMap();
@@ -23553,15 +23553,15 @@
         this.boundElementValues.delete(el);
       }
     }
-    Shiny.inputBindings.register(new NewCustomBinding(), `${name}-Binding`);
+    Shiny2.inputBindings.register(new NewCustomBinding(), `${name}-Binding`);
   }
 
   // ../core/dist/makeOutputBinding.js
   function makeOutputBinding({ name, selector = `.${name}`, setup }) {
-    if (!Shiny) {
+    if (!Shiny2) {
       return;
     }
-    class NewCustomBinding extends Shiny.OutputBinding {
+    class NewCustomBinding extends Shiny2.OutputBinding {
       constructor() {
         super(...arguments);
         this.boundElements = /* @__PURE__ */ new WeakMap();
@@ -23583,15 +23583,15 @@
         this.getCallbacks(el).onNewValue(data);
       }
     }
-    Shiny.outputBindings.register(new NewCustomBinding(), `${name}-Binding`);
+    Shiny2.outputBindings.register(new NewCustomBinding(), `${name}-Binding`);
   }
 
   // ../core/dist/makeOutputBindingWebComponent.js
   function makeOutputBindingWebComponent(tagName, el, opts = { registerElement: true }) {
-    if (!Shiny) {
+    if (!Shiny2) {
       return;
     }
-    class NewCustomBinding extends Shiny["OutputBinding"] {
+    class NewCustomBinding extends Shiny2["OutputBinding"] {
       find(scope) {
         return $(scope).find(tagName);
       }
@@ -23602,7 +23602,7 @@
     if (opts.registerElement) {
       customElements.define(tagName, el);
     }
-    Shiny.outputBindings.register(new NewCustomBinding(), `${tagName}-Binding`);
+    Shiny2.outputBindings.register(new NewCustomBinding(), `${tagName}-Binding`);
   }
 
   // srcts/plain-bindings.ts
@@ -23638,15 +23638,31 @@
 
   // ../react/dist/makeReactInput.js
   var import_client = __toESM(require_client());
+  function makeReactInput({ name, selector, initialValue, renderComp, priority = "immediate" }) {
+    makeInputBinding({
+      name,
+      selector,
+      setup: (el, onNewValue) => {
+        onNewValue(initialValue);
+        (0, import_client.createRoot)(el).render(renderComp({
+          initialValue,
+          onNewValue: (x2) => onNewValue(x2, priority === "deferred")
+        }));
+      }
+    });
+  }
+
+  // ../react/dist/makeReactInputWebcomponent.js
+  var import_client2 = __toESM(require_client());
 
   // ../react/dist/makeReactOutput.js
-  var import_client2 = __toESM(require_client());
+  var import_client3 = __toESM(require_client());
   function makeReactOutput({ name, selector = `.${name}`, renderComp }) {
     makeOutputBinding({
       name,
       selector,
       setup: (el) => {
-        const root = (0, import_client2.createRoot)(el);
+        const root = (0, import_client3.createRoot)(el);
         return {
           onNewValue: (payload) => {
             root.render(renderComp(payload));
@@ -23655,6 +23671,9 @@
       }
     });
   }
+
+  // ../react/dist/makeReactOutputWebComponent.js
+  var import_client4 = __toESM(require_client());
 
   // srcts/react-components.tsx
   var import_react = __toESM(require_react());
@@ -23665,14 +23684,35 @@
       {
         style: {
           border: "1px solid black",
-          height: "100px",
-          width: "100px"
+          height: "100px"
         }
       },
       "I'm a react output with value ",
-      value
+      /* @__PURE__ */ import_react.default.createElement("strong", null, value)
     )
   });
+  makeReactInput({
+    name: "custom-react-input",
+    initialValue: "initial value",
+    renderComp: ({ initialValue, onNewValue }) => /* @__PURE__ */ import_react.default.createElement(MyInput, { value: initialValue, onNewValue })
+  });
+  function MyInput({
+    value,
+    onNewValue
+  }) {
+    const [val, setVal] = import_react.default.useState(value);
+    return /* @__PURE__ */ import_react.default.createElement(
+      "input",
+      {
+        type: "text",
+        value: val,
+        onChange: (e5) => {
+          setVal(e5.target.value);
+          onNewValue(e5.target.value);
+        }
+      }
+    );
+  }
 
   // ../../node_modules/@lit/reactive-element/css-tag.js
   var t = globalThis;
