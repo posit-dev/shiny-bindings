@@ -1,22 +1,22 @@
-from .custom_component import (
-    custom_component,
-    render_custom_component,
-    custom_component_simple,
-    custom_component_input,
-)
+from .custom_component import render_custom_output
+
+from .plain_components import plain_output, plain_input
 
 from .react_components import (
-    custom_react_output,
-    render_react_output,
+    react_output,
     react_input,
 )
 
+from .webcomponents import webcomponent_input, webcomponent_output
+
+
 __all__ = [
     "custom_component",
-    "render_custom_component",
-    "custom_component_simple",
-    "custom_component_input",
-    "custom_react_output",
-    "render_react_output",
+    "webcomponent_input",
+    "webcomponent_output",
+    "render_custom_output",
+    "plain_output",
+    "plain_input",
+    "react_output",
     "react_input",
 ]

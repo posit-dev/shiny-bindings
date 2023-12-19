@@ -9,13 +9,11 @@ import {
 makeOutputBinding<{ value: number }>({
   name: "custom-component-simple",
   setup: (el) => {
-    let rendered_count = 0;
-
     return {
       onNewValue: (payload) => {
         el.innerHTML = `
-          <span part="display"> Simple value: ${payload.value} </span>
-          <span> Rendered ${++rendered_count} times </span>
+          <span>I am a plain output with value:</span>
+          <strong> ${payload.value} </strong>
         `;
       },
     };
@@ -27,8 +25,7 @@ makeInputBinding<number>({
   setup: (el, onNewValue) => {
     let count = 0;
     el.innerHTML = `
-      <span>I am an input</span>
-      <button>Click me</button>
+      <button>Plain</button>
       `;
     const button = el.querySelector("button")!;
     button.addEventListener("click", () => {

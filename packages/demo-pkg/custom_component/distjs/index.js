@@ -23520,6 +23520,38 @@
   // ../core/dist/utils.js
   var Shiny2 = window.Shiny;
 
+  // ../core/dist/makeInputBindingWebComponent.js
+  function makeInputBindingWebComponent(tagName, el, opts = { registerElement: true, type: null }) {
+    if (!Shiny2) {
+      return;
+    }
+    class NewCustomBinding extends Shiny2["InputBinding"] {
+      constructor() {
+        super();
+      }
+      find(scope) {
+        return $(scope).find(tagName);
+      }
+      getValue(el2) {
+        return el2.value;
+      }
+      getType(_2) {
+        return opts.type ?? null;
+      }
+      subscribe(el2, callback) {
+        el2.notifyBindingOfChange = (ad) => callback(ad ?? false);
+      }
+      unsubscribe(el2) {
+        el2.notifyBindingOfChange = (_2) => {
+        };
+      }
+    }
+    if (opts.registerElement) {
+      customElements.define(tagName, el);
+    }
+    Shiny2.inputBindings.register(new NewCustomBinding(), `${tagName}-Binding`);
+  }
+
   // ../core/dist/makeInputBinding.js
   function makeInputBinding({ name, selector = `.${name}`, setup }) {
     if (!Shiny2) {
@@ -23609,12 +23641,11 @@
   makeOutputBinding({
     name: "custom-component-simple",
     setup: (el) => {
-      let rendered_count = 0;
       return {
         onNewValue: (payload) => {
           el.innerHTML = `
-          <span part="display"> Simple value: ${payload.value} </span>
-          <span> Rendered ${++rendered_count} times </span>
+          <span>I am a plain output with value:</span>
+          <strong> ${payload.value} </strong>
         `;
         }
       };
@@ -23625,8 +23656,7 @@
     setup: (el, onNewValue) => {
       let count = 0;
       el.innerHTML = `
-      <span>I am an input</span>
-      <button>Click me</button>
+      <button>Plain</button>
       `;
       const button = el.querySelector("button");
       button.addEventListener("click", () => {
@@ -23684,7 +23714,7 @@
       {
         style: {
           border: "1px solid black",
-          height: "100px"
+          padding: "1rem"
         }
       },
       "I'm a react output with value ",
@@ -23693,7 +23723,7 @@
   });
   makeReactInput({
     name: "custom-react-input",
-    initialValue: "initial value",
+    initialValue: 0,
     renderComp: ({ initialValue, onNewValue }) => /* @__PURE__ */ import_react.default.createElement(MyInput, { value: initialValue, onNewValue })
   });
   function MyInput({
@@ -23701,17 +23731,17 @@
     onNewValue
   }) {
     const [val, setVal] = import_react.default.useState(value);
-    return /* @__PURE__ */ import_react.default.createElement(
-      "input",
+    return /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement(
+      "button",
       {
-        type: "text",
-        value: val,
-        onChange: (e5) => {
-          setVal(e5.target.value);
-          onNewValue(e5.target.value);
+        onClick: (e5) => {
+          const newVal = val + 1;
+          setVal(newVal);
+          onNewValue(newVal);
         }
-      }
-    );
+      },
+      "React"
+    ));
   }
 
   // ../../node_modules/@lit/reactive-element/css-tag.js
@@ -24343,7 +24373,8 @@
     }
     render() {
       return x`
-      <span part="display"> Value: ${this.count} </span>
+      <span>I am a webcomponent output with value:</span>
+      <strong part="display">${this.count} </strong>
       <slot></slot>
     `;
     }
@@ -24351,7 +24382,53 @@
   __decorateClass([
     n4({ type: Number })
   ], CustomComponentEl.prototype, "count", 2);
-  makeOutputBindingWebComponent("custom-component", CustomComponentEl);
+  makeOutputBindingWebComponent(
+    "webcomponent-output",
+    CustomComponentEl
+  );
+  var CustomInputEl = class extends s3 {
+    constructor() {
+      super(...arguments);
+      this.value = 0;
+      /*
+       * The callback function that is called when the value of the input changes.
+       * This alerts Shiny that the value has changed and it should check for the
+       * latest value. This is set by the input binding.
+       */
+      this.notifyBindingOfChange = () => {
+      };
+    }
+    static {
+      this.styles = i`
+    :host {
+      display: block;
+      border: solid 1px gray;
+      padding: 16px;
+      max-width: 800px;
+      width: fit-content;
+    }
+  `;
+    }
+    /**
+     * Function to run when the increment button is clicked.
+     */
+    onIncrement() {
+      this.value++;
+      this.notifyBindingOfChange(true);
+    }
+    render() {
+      return x`
+      <button @click=${this.onIncrement} part="button">Web Component</button>
+      <slot></slot>
+    `;
+    }
+  };
+  __decorateClass([
+    n4({ type: Number })
+  ], CustomInputEl.prototype, "value", 2);
+  makeInputBindingWebComponent("webcomponent-input", CustomInputEl, {
+    registerElement: true
+  });
 })();
 /*! Bundled license information:
 

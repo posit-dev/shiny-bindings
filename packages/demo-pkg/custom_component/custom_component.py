@@ -1,9 +1,8 @@
 # from pathlib import Path
 from pathlib import PurePath
 
-from htmltools import HTMLDependency, Tag
+from htmltools import HTMLDependency
 
-from shiny.module import resolve_id
 from shiny.render.transformer import (
     TransformerMetadata,
     ValueFn,
@@ -26,7 +25,7 @@ custom_component_deps = HTMLDependency(
 
 
 @output_transformer()
-async def render_custom_component(
+async def render_custom_output(
     _meta: TransformerMetadata,
     _fn: ValueFn[int | None],
 ):
@@ -41,43 +40,3 @@ async def render_custom_component(
     # Send the results to the client. Make sure that this is a serializable
     # object and matches what is expected in the javascript code.
     return {"value": res}
-
-
-def custom_component(id: str, height: str = "200px"):
-    """
-    A shiny output. To be paired with
-    `render_custom_component` decorator.
-    """
-    return Tag(
-        "custom-component",
-        custom_component_deps,
-        # Use resolve_id so that our component will work in a module
-        id=resolve_id(id),
-    )
-
-
-def custom_component_simple(id: str):
-    """
-    A shiny output. To be paired with
-    `render_custom_component` decorator.
-    """
-    return Tag(
-        "div",
-        {"class": "custom-component-simple"},
-        custom_component_deps,
-        # Use resolve_id so that our component will work in a module
-        id=resolve_id(id),
-    )
-
-
-def custom_component_input(id: str):
-    """
-    A shiny input to demo nameInputBinding().
-    """
-    return Tag(
-        "div",
-        {"class": "custom-component-input"},
-        custom_component_deps,
-        # Use resolve_id so that our component will work in a module
-        id=resolve_id(id),
-    )

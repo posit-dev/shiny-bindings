@@ -1,9 +1,10 @@
 from custom_component import (
-    custom_component_simple,
-    render_custom_component,
-    custom_component_input,
-    custom_react_output,
-    render_react_output,
+    plain_output,
+    webcomponent_input,
+    webcomponent_output,
+    render_custom_output,
+    plain_input,
+    react_output,
     react_input,
 )
 
@@ -12,33 +13,34 @@ from shiny import App, ui
 app_ui = ui.page_fluid(
     ui.card(
         ui.card_header("Plain"),
-        custom_component_input("plainInput"),
-        custom_component_simple("plainOutput"),
+        plain_input("plainInput"),
+        plain_output("plainOutput"),
     ),
     ui.card(
-        ui.card_header("With React"),
+        ui.card_header("React"),
         react_input("reactInput"),
-        custom_react_output("reactOutput"),
+        react_output("reactOutput"),
     ),
     ui.card(
-        ui.input_slider("n2", "Choose a value", 1, 20, 5),
-        custom_component_simple("myOutput2"),
+        ui.card_header("Webcomponents"),
+        webcomponent_input("webcomponentInput"),
+        webcomponent_output("webcomponentOutput"),
     ),
 )
 
 
 def server(input, output, session):
-    @render_custom_component
+    @render_custom_output
     def plainOutput():
         return input.plainInput()
 
-    @render_custom_component
-    def myOutput2():
-        return 2 * input.myButtonCount()
+    @render_custom_output
+    def webcomponentOutput():
+        return 2 * input.webcomponentInput()
 
-    @render_react_output
+    @render_custom_output
     def reactOutput():
-        return f"React output: {input.reactInput()}"
+        return input.reactInput()
 
 
 app = App(app_ui, server)
