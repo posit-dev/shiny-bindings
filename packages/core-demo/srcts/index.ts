@@ -7,6 +7,8 @@ import {
   makeOutputBindingWebComponent,
 } from "@posit-dev/shiny-bindings-core";
 
+import "./react-components";
+
 // What the server-side output binding will send to the client. It's important
 // to make sure this matches what the python code is sending.
 type Payload = { value: number };

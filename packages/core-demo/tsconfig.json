@@ -32,6 +32,6 @@
       }
     ]
   },
-  "include": ["srcts/**/*.ts"],
+  "include": ["srcts/**/*.ts", "srcts/index.tsx"],
   "exclude": []
 }

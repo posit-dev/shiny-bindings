@@ -16,6 +16,9 @@
   },
   "dependencies": {
     "@posit-dev/shiny-bindings-core": "*",
+    "@posit-dev/shiny-bindings-react": "*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "lit": "^3.0.2"
   }
 }
