@@ -23,24 +23,24 @@ export function makeReactInput<T>({
   initialValue: T;
   renderComp: ({
     initialValue,
-    onNewValue,
+    updateValue,
   }: {
     initialValue: T;
-    onNewValue: (x: T) => void;
+    updateValue: (x: T) => void;
   }) => ReactNode;
   priority?: "immediate" | "deferred";
 }) {
   makeInputBinding<T>({
     name,
     selector,
-    setup: (el, onNewValue) => {
+    setup: (el, updateValue) => {
       // Fire off onNewValue with the initial value
-      onNewValue(initialValue);
+      updateValue(initialValue);
 
       createRoot(el).render(
         renderComp({
           initialValue: initialValue,
-          onNewValue: (x) => onNewValue(x, priority === "deferred"),
+          updateValue: (x) => updateValue(x, priority === "deferred"),
         })
       );
     },

@@ -23,17 +23,17 @@ makeReactOutput<Payload>({
 makeReactInput<number>({
   name: "custom-react-input",
   initialValue: 0,
-  renderComp: ({ initialValue, onNewValue }) => (
-    <MyInput value={initialValue} onNewValue={onNewValue} />
+  renderComp: ({ initialValue, updateValue }) => (
+    <MyInput value={initialValue} updateValue={updateValue} />
   ),
 });
 
 function MyInput({
   value,
-  onNewValue,
+  updateValue,
 }: {
   value: number;
-  onNewValue: (val: number) => void;
+  updateValue: (val: number) => void;
 }) {
   const [val, setVal] = React.useState(value);
 
@@ -43,7 +43,7 @@ function MyInput({
         onClick={(e) => {
           const newVal = val + 1;
           setVal(newVal);
-          onNewValue(newVal);
+          updateValue(newVal);
         }}
       >
         React

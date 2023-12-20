@@ -21,7 +21,7 @@ export function makeInputBinding<T>({
   selector?: string;
   setup: (
     el: HTMLElement,
-    onNewValue: (x: T, allowDeferred?: boolean) => void
+    updateValue: (x: T, allowDeferred?: boolean) => void
   ) => void;
 }) {
   if (!Shiny) {
@@ -30,10 +30,6 @@ export function makeInputBinding<T>({
 
   class NewCustomBinding extends Shiny.InputBinding {
     boundElementValues = new WeakMap<HTMLElement, T>();
-
-    constructor() {
-      super();
-    }
 
     override find(scope: HTMLElement) {
       return $(scope).find(selector);

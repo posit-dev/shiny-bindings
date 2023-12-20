@@ -36,7 +36,7 @@ export function makeOutputBindingWebComponent<
     return;
   }
 
-  class NewCustomBinding extends Shiny["OutputBinding"] {
+  class NewCustomBinding extends Shiny.OutputBinding {
     override find(scope: HTMLElement): JQuery<El> {
       return $(scope).find(tagName) as JQuery<El>;
     }

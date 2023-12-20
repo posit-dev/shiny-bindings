@@ -22,15 +22,15 @@ makeOutputBinding<{ value: number }>({
 
 makeInputBinding<number>({
   name: "custom-component-input",
-  setup: (el, onNewValue) => {
+  setup: (el, updateValue) => {
     let count = 0;
     el.innerHTML = `
       <button>Plain</button>
       `;
     const button = el.querySelector("button")!;
     button.addEventListener("click", () => {
-      onNewValue(++count);
+      updateValue(++count);
     });
-    onNewValue(count);
+    updateValue(count);
   },
 });

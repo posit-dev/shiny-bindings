@@ -36,7 +36,7 @@ def server(input, output, session):
 
     @render_custom_output
     def webcomponentOutput():
-        return 2 * input.webcomponentInput()
+        return input.webcomponentInput()
 
     @render_custom_output
     def reactOutput():

@@ -41,11 +41,7 @@ export function makeInputBindingWebComponent<
     return;
   }
 
-  class NewCustomBinding extends Shiny["InputBinding"] {
-    constructor() {
-      super();
-    }
-
+  class NewCustomBinding extends Shiny.InputBinding {
     override find(scope: HTMLElement): JQuery<El> {
       return $(scope).find(tagName) as JQuery<El>;
     }

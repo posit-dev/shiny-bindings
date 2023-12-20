@@ -23525,10 +23525,7 @@
     if (!Shiny2) {
       return;
     }
-    class NewCustomBinding extends Shiny2["InputBinding"] {
-      constructor() {
-        super();
-      }
+    class NewCustomBinding extends Shiny2.InputBinding {
       find(scope) {
         return $(scope).find(tagName);
       }
@@ -23559,7 +23556,7 @@
     }
     class NewCustomBinding extends Shiny2.InputBinding {
       constructor() {
-        super();
+        super(...arguments);
         this.boundElementValues = /* @__PURE__ */ new WeakMap();
       }
       find(scope) {
@@ -23623,7 +23620,7 @@
     if (!Shiny2) {
       return;
     }
-    class NewCustomBinding extends Shiny2["OutputBinding"] {
+    class NewCustomBinding extends Shiny2.OutputBinding {
       find(scope) {
         return $(scope).find(tagName);
       }
@@ -23653,16 +23650,16 @@
   });
   makeInputBinding({
     name: "custom-component-input",
-    setup: (el, onNewValue) => {
+    setup: (el, updateValue) => {
       let count = 0;
       el.innerHTML = `
       <button>Plain</button>
       `;
       const button = el.querySelector("button");
       button.addEventListener("click", () => {
-        onNewValue(++count);
+        updateValue(++count);
       });
-      onNewValue(count);
+      updateValue(count);
     }
   });
 
@@ -23672,11 +23669,11 @@
     makeInputBinding({
       name,
       selector,
-      setup: (el, onNewValue) => {
-        onNewValue(initialValue);
+      setup: (el, updateValue) => {
+        updateValue(initialValue);
         (0, import_client.createRoot)(el).render(renderComp({
           initialValue,
-          onNewValue: (x2) => onNewValue(x2, priority === "deferred")
+          updateValue: (x2) => updateValue(x2, priority === "deferred")
         }));
       }
     });
@@ -23724,11 +23721,11 @@
   makeReactInput({
     name: "custom-react-input",
     initialValue: 0,
-    renderComp: ({ initialValue, onNewValue }) => /* @__PURE__ */ import_react.default.createElement(MyInput, { value: initialValue, onNewValue })
+    renderComp: ({ initialValue, updateValue }) => /* @__PURE__ */ import_react.default.createElement(MyInput, { value: initialValue, updateValue })
   });
   function MyInput({
     value,
-    onNewValue
+    updateValue
   }) {
     const [val, setVal] = import_react.default.useState(value);
     return /* @__PURE__ */ import_react.default.createElement(import_react.default.Fragment, null, /* @__PURE__ */ import_react.default.createElement(
@@ -23737,7 +23734,7 @@
         onClick: (e5) => {
           const newVal = val + 1;
           setVal(newVal);
-          onNewValue(newVal);
+          updateValue(newVal);
         }
       },
       "React"
