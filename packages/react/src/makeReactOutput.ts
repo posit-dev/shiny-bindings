@@ -1,61 +1,35 @@
 import { ReactNode } from "react";
 import { createRoot } from "react-dom/client";
+import { makeOutputBinding } from "@posit-dev/shiny-bindings-core";
 
 /**
  * Make a custom Shiny input binding using a react component.
- * @param tagName The name of the custom element to create
+ * @param name The name of the component.
+ * @param selector The selector to use to find the element to bind to. Defaults to looking for
+ * a class with the same name as the binding.
  * @param renderComp A function that renders the react component into the custom element
  * @returns A Shiny input binding
  */
 export function makeReactOutput<T>({
-  tagName,
+  name,
+  selector = `.${name}`,
   renderComp,
 }: {
-  tagName: string;
+  name: string;
+  selector?: string;
   renderComp: (payload: T) => ReactNode;
 }) {
-  class OutputComponent extends HTMLElement {
-    /**
-     * Function to run when the a new color is shown. First updates the value and
-     * then tells Shiny that there is an updated value
-     */
-    onNewValue(x: T) {
-      createRoot(this).render(renderComp(x));
-    }
-  }
+  makeOutputBinding<T>({
+    name,
+    selector,
+    setup: (el) => {
+      const root = createRoot(el);
 
-  class CustomOutputBinding extends Shiny.OutputBinding {
-    /**
-     * Find the element that will be rendered by this output binding.
-     * @param scope The scope in which to search for the element.
-     * @returns The element that will be rendered by this output
-     * binding.
-     */
-    override find(scope: JQuery<HTMLElement>) {
-      return scope.find(tagName);
-    }
-
-    /**
-     * Function to run when rendering the output. This function will be passed the
-     * element that was found by `find()` and the payload that was sent by the
-     * server when there's new data to render. Note that the element passed may
-     * already be populated with content from a previous render and it is up to
-     * the function to clear the element and re-render the content.
-     * @param el The element that was found by `find()`
-     * @param payload An object as provided from server with the
-     * `render_testing_output_comp` function
-     */
-    override renderValue(el: HTMLElement, payload: T) {
-      // Return early if el is not an instance of the custom element
-      if (!(el instanceof OutputComponent)) {
-        return;
-      }
-
-      el.onNewValue(payload);
-    }
-  }
-
-  // Register the custom element and output binding
-  customElements.define(tagName, OutputComponent);
-  Shiny.outputBindings.register(new CustomOutputBinding(), tagName);
+      return {
+        onNewValue: (payload) => {
+          root.render(renderComp(payload));
+        },
+      };
+    },
+  });
 }

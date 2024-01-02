@@ -24,6 +24,55 @@ Convenience function for creating a custom input binding for a React component. 
 
 Arguments:
 
+- `name`: The name of the input binding to register with Shiny.
+- `initialValue`: The initial value of the input.
+- `renderComp`: A function that sets up the react component. Arguments:
+  - `onNewValue`: A function that should be called whenever the value of the input binding changes. The value should be passed as the first argument to the function.
+- `priority`: Should the value be immediately (`immediate`) updated wait to the next even loop (` "deferred"`)? Typically left at the default of "immediate".
+- `selector` (Optional) A css selector for finding the element to render the input into in the UI. Defaults to selecting an element with the class of `name`. I.e. `.${name}`.
+
+Example:
+
+```typescript
+makeReactInput<number>({
+  name: "custom-react-input",
+  initialValue: 0,
+  renderComp: ({ initialValue, onNewValue }) => (
+    <MyInput value={initialValue} onNewValue={onNewValue} />
+  ),
+});
+```
+
+### `makeReactOutput()`
+
+Make a custom Shiny input binding using a react component. Takes care of registering the output binding to Shiny.
+
+Arguments:
+
+- `name`: The name of the output binding to register with Shiny.
+- `renderComp`: Function to render the react component given a provided value. This function will be re-rendered every time the value of the output binding changes. Arguments:
+  - `value`: The value of the output binding.
+- `selector` (Optional) A css selector for finding the element to render the output into in the UI. Defaults to selecting an element with the class of `name`. I.e. `.${name}`.
+
+```typescript
+makeReactOutput<{ value: string }>({
+  name: "custom-react-output",
+  renderComp: ({ value }) => (
+    <div>
+      I'm a react output with value <strong>{value}</strong>
+    </div>
+  ),
+});
+```
+
+## Webcomponent helpers
+
+### `makeReactInput()`
+
+Convenience function for creating a custom input binding for a React component. Takes care of registering the input binding to Shiny.
+
+Arguments:
+
 - `tagName`: The name of the custom element that will be used to render the React component.
 - `initialValue`: The initial value of the input.
 - `renderComp`: A function that setsup the react component.

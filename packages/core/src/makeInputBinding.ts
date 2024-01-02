@@ -1,81 +1,71 @@
 import { Shiny } from "./utils";
-import { Constructor } from "./utils";
 
 /**
- * A custom element that extends this interface will be treated as an input
- * binding by Shiny when paired with `makeInputBinding()`.
+ * Make a custom input binding
+ *
+ * @param name The name of the binding. This will be used to register the binding with
+ * Shiny. Must be unique.
+ * @param selector The selector to use to find the element to bind to. Defaults to looking for
+ * a class with the same name as the binding.
+ * @param setup A function that will be called when the element is first bound. Arguments are
+ * the element to bind to and a function that should be called by the input binding when there
+ * is a new value.
+ *
  */
-export interface CustomElementInput<T = string> extends HTMLElement {
-  id: string;
-  value: T;
-  /**
-   * Function to let Shiny know it should look for a new value.
-   * @param allowDeferred Should the value be immediately updated wait to the next event loop?
-   */
-  notifyBindingOfChange: (allowDeferred?: boolean) => void;
-}
-
-/**
- * Given a tag name for a custom element that is a CustomElementInput<T>, this
- * will hook up the proper input binding and register it with Shiny.
- * @param tagName Name of the tag that corresponds to the input binding
- * @param el The custom element that extends `CustomElementInput<T>`.
- * @param opts Options for the output binding
- * @param opts.registerElement Whether to register the webcomponent used for the
- * output. Defaults to true.
- * @param opts.type The type of the input. This is used for type-checking the
- * input within Shiny. Defaults to null.
- */
-export function makeInputBinding<
-  T,
-  El extends CustomElementInput<T> = CustomElementInput<T>
->(
-  tagName: string,
-  el: Constructor<El>,
-  opts: {
-    registerElement?: boolean;
-    type?: string | null;
-  } = { registerElement: true, type: null }
-) {
+export function makeInputBinding<T>({
+  name,
+  selector = `.${name}`,
+  setup,
+}: {
+  name: string;
+  selector?: string;
+  setup: (
+    el: HTMLElement,
+    updateValue: (x: T, allowDeferred?: boolean) => void
+  ) => void;
+}) {
   if (!Shiny) {
     return;
   }
 
-  class NewCustomBinding extends Shiny["InputBinding"] {
-    constructor() {
-      super();
+  class NewCustomBinding extends Shiny.InputBinding {
+    boundElementValues = new WeakMap<HTMLElement, T>();
+
+    override find(scope: HTMLElement) {
+      return $(scope).find(selector);
     }
 
-    override find(scope: HTMLElement): JQuery<El> {
-      return $(scope).find(tagName) as JQuery<El>;
+    override getValue(el: HTMLElement) {
+      if (this.boundElementValues.has(el)) {
+        return this.boundElementValues.get(el);
+      }
+
+      return null;
     }
 
-    override getValue(el: El) {
-      return el.value;
-    }
-
-    override getType(_: El): string | null {
-      return opts.type ?? null;
-    }
+    // TODO: Setup the getType method here
 
     override subscribe(
-      el: El,
+      el: HTMLElement,
       callback: (allowDeferred: boolean) => void
     ): void {
-      // This is so that we can appease shiny's callback type which says that the
-      // allowDefered parameter is always required. Our implementation doesn't
-      // need it to be passed, which is the equivalent of passing false.
-      el.notifyBindingOfChange = (ad?: boolean) => callback(ad ?? false);
+      // Make sure this is only called once per element
+      if (this.boundElementValues.has(el)) {
+        throw new Error(
+          "Cannot subscribe to an element that is already subscribed to"
+        );
+      }
+
+      setup(el, (x, allowDeferred = false) => {
+        this.boundElementValues.set(el, x);
+        callback(allowDeferred);
+      });
     }
 
-    override unsubscribe(el: El): void {
-      el.notifyBindingOfChange = (_?: boolean) => {};
+    override unsubscribe(el: HTMLElement): void {
+      this.boundElementValues.delete(el);
     }
   }
 
-  if (opts.registerElement) {
-    customElements.define(tagName, el);
-  }
-
-  Shiny.inputBindings.register(new NewCustomBinding(), `${tagName}-Binding`);
+  Shiny.inputBindings.register(new NewCustomBinding(), `${name}-Binding`);
 }
