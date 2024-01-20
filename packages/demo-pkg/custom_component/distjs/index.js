@@ -23609,7 +23609,7 @@
         return callbacks;
       }
       renderValue(el, data) {
-        this.getCallbacks(el).onNewValue(data);
+        this.getCallbacks(el).onNewValue(data ?? {});
       }
     }
     Shiny2.outputBindings.register(new NewCustomBinding(), `${name}-Binding`);
