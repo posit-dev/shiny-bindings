@@ -8,7 +8,7 @@ from custom_component import (
     react_input,
 )
 
-from shiny import App, ui
+from shiny import App, Inputs, ui
 
 app_ui = ui.page_fluid(
     ui.card(
@@ -29,18 +29,18 @@ app_ui = ui.page_fluid(
 )
 
 
-def server(input, output, session):
+def server(input: Inputs):
     @render_custom_output
     def plainOutput():
         return input.plainInput()
 
     @render_custom_output
-    def webcomponentOutput():
-        return input.webcomponentInput()
-
-    @render_custom_output
     def reactOutput():
         return input.reactInput()
+
+    @render_custom_output
+    def webcomponentOutput():
+        return input.webcomponentInput()
 
 
 app = App(app_ui, server)
