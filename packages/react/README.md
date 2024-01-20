@@ -59,7 +59,7 @@ makeReactOutput<{ value: string }>({
   name: "custom-react-output",
   renderComp: ({ value }) => (
     <div>
-      I'm a react output with value <strong>{value}</strong>
+      I am a react output with value: <strong>{value}</strong>
     </div>
   ),
 });

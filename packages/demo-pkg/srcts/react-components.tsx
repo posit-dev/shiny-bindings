@@ -15,7 +15,7 @@ makeReactOutput<Payload>({
         padding: "1rem",
       }}
     >
-      I'm a react output with value <strong>{value}</strong>
+      I am a react output with value: <strong>{value}</strong>
     </div>
   ),
 });
