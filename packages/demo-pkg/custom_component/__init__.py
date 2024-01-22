@@ -1,4 +1,4 @@
-from .custom_component import render_custom_output
+from .render_custom_output import render_custom_output
 
 from .plain_components import plain_output, plain_input
 

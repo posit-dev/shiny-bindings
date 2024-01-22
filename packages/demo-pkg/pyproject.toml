@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "custom_component"
 version = "0.1"
-dependencies = ["shiny >= 0.6.0"]
+dependencies = ["shiny > 0.6.1.1"]
 
 [tool.setuptools]
 packages = ["custom_component"]

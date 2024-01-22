@@ -72,7 +72,7 @@ export function makeOutputBinding<T>({
     }
 
     override renderValue(el: HTMLElement, data: T): void {
-      this.getCallbacks(el).onNewValue(data);
+      this.getCallbacks(el).onNewValue(data ?? {});
     }
   }
 
